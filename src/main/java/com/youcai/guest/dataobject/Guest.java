@@ -1,7 +1,7 @@
 package com.youcai.guest.dataobject;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.youcai.manage.utils.EDSUtils;
+import com.youcai.guest.utils.EDSUtils;
 import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
