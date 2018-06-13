@@ -16,6 +16,7 @@ import com.youcai.guest.vo.pricelist.ProductVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -52,12 +53,18 @@ public class PricelistServiceImpl implements PricelistService {
                 categoryVO.setName(category.getName());
                 List<ProductVO> productVOS = new ArrayList<>();
                 for (Pricelist pricelist : pricelists){
+                    if (pricelist.getPrice().subtract(BigDecimal.ZERO)
+                            .compareTo(new BigDecimal(0.01)) < 0){
+                        continue;
+                    }
                     Product product = productMap.get(pricelist.getId().getProductId());
                     if (product.getPCode().equals(category.getCode())){
                         ProductVO productVO = new ProductVO();
                         productVO.setId(pricelist.getId().getProductId());
                         productVO.setName(product.getName());
+                        productVO.setUnit(product.getUnit());
                         productVO.setPrice(pricelist.getPrice());
+                        productVO.setCount(BigDecimal.ZERO);
                         productVO.setNote(pricelist.getNote());
                         productVOS.add(productVO);
                     }

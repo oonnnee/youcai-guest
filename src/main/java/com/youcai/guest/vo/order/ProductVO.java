@@ -1,4 +1,4 @@
-package com.youcai.guest.vo.pricelist;
+package com.youcai.guest.vo.order;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -14,6 +14,7 @@ public class ProductVO {
     private String name;
     private String unit;
     private BigDecimal price;
-    private BigDecimal count;
+    private BigDecimal num;
+    private BigDecimal amount;
     private String note;
 }

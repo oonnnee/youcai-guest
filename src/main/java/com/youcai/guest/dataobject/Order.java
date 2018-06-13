@@ -1,6 +1,8 @@
 package com.youcai.guest.dataobject;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
@@ -13,6 +15,8 @@ import java.math.BigDecimal;
 @Entity
 @Data
 @Table(name = "orders")
+@NoArgsConstructor
+@AllArgsConstructor
 public class Order {
 
     /*--- 联合主键：采购时间、采购客户id、采购产品id ---*/
