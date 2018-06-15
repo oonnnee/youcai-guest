@@ -30,9 +30,7 @@ public class OrderServiceImpl implements OrderService {
     private ProductService productService;
     @Override
     public void save(List<Order> orders) {
-        for (Order order : orders){
-            orderRepository.save(order);
-        }
+        orderRepository.save(orders);
     }
     @Override
     public List<Date> findDatesByGuestId(String guestId) {
