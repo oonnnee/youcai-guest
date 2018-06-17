@@ -64,7 +64,7 @@ public class PricelistServiceImpl implements PricelistService {
                         productVO.setName(product.getName());
                         productVO.setUnit(product.getUnit());
                         productVO.setPrice(pricelist.getPrice());
-                        productVO.setCount(BigDecimal.ZERO);
+                        productVO.setCount(new BigDecimal(1));
                         productVO.setNote(pricelist.getNote());
                         productVOS.add(productVO);
                     }

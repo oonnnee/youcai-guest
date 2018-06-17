@@ -71,4 +71,15 @@ public class OrderController {
         OneVO oneVO = orderService.findByGuestIdAndDate(guest.getId(), date);
         return ResultVOUtils.success(oneVO);
     }
+
+    @PostMapping("/delete")
+    public ResultVO delete(
+            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") Date date
+    ){
+        Guest guest = (Guest) SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getPrincipal();
+        orderService.delete(guest.getId(), date);
+        return ResultVOUtils.success();
+    }
 }

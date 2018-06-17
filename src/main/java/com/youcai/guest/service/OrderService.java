@@ -10,4 +10,5 @@ public interface OrderService {
     void save(List<Order> orders);
     List<Date> findDatesByGuestId(String guestId);
     OneVO findByGuestIdAndDate(String guestId, Date date);
+    void delete(String guestId, Date date);
 }

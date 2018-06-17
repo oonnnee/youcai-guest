@@ -14,6 +14,7 @@ import com.youcai.guest.vo.order.ProductVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
@@ -72,5 +73,11 @@ public class OrderServiceImpl implements OrderService {
         }
         oneVO.setCategories(categoryVOS);
         return oneVO;
+    }
+
+    @Override
+    @Transactional
+    public void delete(String guestId, Date date) {
+        orderRepository.deleteByIdGuestIdAndIdOdate(guestId, date);
     }
 }
