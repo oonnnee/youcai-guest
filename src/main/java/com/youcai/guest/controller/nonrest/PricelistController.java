@@ -1,5 +1,6 @@
-package com.youcai.guest.controller;
+package com.youcai.guest.controller.nonrest;
 
+import com.youcai.guest.dataobject.Guest;
 import com.youcai.guest.dto.excel.pricelist.CategoryExport;
 import com.youcai.guest.dto.excel.pricelist.Export;
 import com.youcai.guest.dto.excel.pricelist.ProductExport;
@@ -16,6 +17,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,18 +31,21 @@ import java.util.Date;
 import java.util.List;
 
 @Controller
-@RequestMapping("/excel")
-public class ExcelController {
-
+@RequestMapping("/pricelist")
+public class PricelistController {
     @Autowired
     private PricelistService pricelistService;
 
-    @GetMapping("/pricelist/export")
+    @GetMapping("/export")
     public ResponseEntity<byte[]> exportPricelist(
-            @RequestParam String guestId,
-            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") Date pdate
+            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") Date date
     ) throws IOException {
-        Export export = pricelistService.getExcelExport(guestId, pdate);
+        Guest guest = (Guest) SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getPrincipal();
+        String guestId = guest.getId();
+
+        Export export = pricelistService.getExcelExport(guestId, date);
         export.setId("yc-160546164");
 
         // create a new workbook
@@ -205,13 +210,12 @@ public class ExcelController {
 
 
         HttpHeaders headers = new HttpHeaders();
-        headers.setContentDispositionFormData("attachment",
-                guestId+" "+new SimpleDateFormat("yyyy-MM-dd").format(pdate)
-                        +" pricelist.xls");
+        String filename = new String("报价单 ".getBytes("UTF-8"), "iso-8859-1")
+                + new SimpleDateFormat("yyyy-MM-dd").format(date)+".xls";
+        headers.setContentDispositionFormData("attachment", filename);
         headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
         ByteArrayOutputStream outByteStream = new ByteArrayOutputStream();
         wb.write(outByteStream);
         return new ResponseEntity<byte[]>(outByteStream.toByteArray(), headers, HttpStatus.OK);
     }
-
 }

@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/pricelist")
-public class PricelistController {
+public class PricelistRestController {
     @Autowired
     private PricelistService pricelistService;
     @GetMapping("/findLatest")

@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/order")
-public class OrderController {
+public class OrderRestController {
     @Autowired
     private OrderService orderService;
 

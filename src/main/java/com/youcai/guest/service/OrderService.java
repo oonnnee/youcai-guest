@@ -1,6 +1,7 @@
 package com.youcai.guest.service;
 
 import com.youcai.guest.dataobject.Order;
+import com.youcai.guest.dto.excel.order.Export;
 import com.youcai.guest.vo.order.OneVO;
 
 import java.util.Date;
@@ -11,4 +12,5 @@ public interface OrderService {
     List<Date> findDatesByGuestId(String guestId);
     OneVO findByGuestIdAndDate(String guestId, Date date);
     void delete(String guestId, Date date);
+    Export getExcelExport(String guestId, Date date);
 }
