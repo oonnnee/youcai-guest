@@ -5,6 +5,7 @@ import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.util.ResourceUtils;
 
 import javax.imageio.ImageIO;
@@ -17,7 +18,7 @@ import java.util.Arrays;
 public class ExportUtil {
 
     /*------------ 文件 -------------*/
-    public static final String LOGO_IMAGE_NAME = "classpath:img/logo.png";
+    public static final String LOGO_IMAGE_NAME = "static/img/logo.png";
 
     /*------------ 单元格 -------------*/
     public static final short CELL_HEIGHT_SM = (short)0x140;
@@ -109,7 +110,8 @@ public class ExportUtil {
         Workbook workbook = sheet.getWorkbook();
         BufferedImage bufferImg = null;
         ByteArrayOutputStream byteArrayOut = new ByteArrayOutputStream();
-        bufferImg = ImageIO.read(ResourceUtils.getFile(img));
+        ClassPathResource classPathResource = new ClassPathResource(img);
+        bufferImg = ImageIO.read(classPathResource.getInputStream());
         ImageIO.write(bufferImg, suffix, byteArrayOut);
         HSSFPatriarch patriarch = sheet.createDrawingPatriarch();
         patriarch.createPicture(anchor, workbook.addPicture(byteArrayOut.toByteArray(), ExportUtil.pictureType(suffix)));

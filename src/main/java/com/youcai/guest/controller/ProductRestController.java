@@ -30,7 +30,7 @@ public class ProductRestController {
     @Autowired
     private CategoryService categoryService;
 
-    @GetMapping("/find")
+    @GetMapping("/findOne")
     public ResultVO<OneVO> findOne(
             @RequestParam String id
     ){
@@ -46,7 +46,7 @@ public class ProductRestController {
         return ResultVOUtils.success(OneVO);
     }
 
-    @GetMapping("/list")
+    @GetMapping("/findPage")
     public ResultVO<Page<OneVO>> list(
             @RequestParam(required = false, defaultValue = "0") Integer page,
             @RequestParam(required = false, defaultValue = "10") Integer size
@@ -73,7 +73,7 @@ public class ProductRestController {
     }
 
 
-    @GetMapping("/findBy")
+    @GetMapping("/findPageByNameLikeAndCodeIn")
     public ResultVO<Page<OneVO>> findByPCodeIn(
             @RequestParam(required = false, defaultValue = "0") Integer page,
             @RequestParam(required = false, defaultValue = "10") Integer size,

@@ -61,7 +61,7 @@ public class OrderRestController {
         return ResultVOUtils.success(dates);
     }
 
-    @GetMapping("/findByDate")
+    @GetMapping("/findOneByDate")
     public ResultVO<OneVO> findByDate(
             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") Date date
     ){
