@@ -22,7 +22,7 @@ public class GuestServiceImpl implements GuestService, UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Guest guest = null;
         if (!username.equals("admin")){
-            guest = guestRepository.findOne(username);
+            guest = guestRepository.findByPhone(username);
         }
         return guest;
     }
