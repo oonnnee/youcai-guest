@@ -55,7 +55,7 @@ public class Guest implements UserDetails {
     @Override
     @JsonIgnore
     public String getUsername() {
-        return this.id;
+        return this.phone;
     }
 
     @Override

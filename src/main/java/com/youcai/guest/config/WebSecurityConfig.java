@@ -39,7 +39,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
             .and()
             .formLogin()
                 .loginProcessingUrl("/login")
-                .usernameParameter("id")
+                .usernameParameter("phone")
                 .passwordParameter("pwd")
                 .failureHandler(new AuthenticationFailureHandler() {
                     @Override
