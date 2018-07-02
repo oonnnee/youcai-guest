@@ -6,15 +6,16 @@ import com.youcai.guest.dataobject.Guest;
 import com.youcai.guest.dataobject.Order;
 import com.youcai.guest.dataobject.OrderKey;
 import com.youcai.guest.dto.order.NewDTO;
+import com.youcai.guest.enums.OrderEnum;
 import com.youcai.guest.enums.ResultEnum;
 import com.youcai.guest.exception.GuestException;
 import com.youcai.guest.service.OrderService;
 import com.youcai.guest.utils.ResultVOUtils;
+import com.youcai.guest.utils.UserUtils;
 import com.youcai.guest.vo.ResultVO;
 import com.youcai.guest.vo.order.OneVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -41,11 +42,9 @@ public class OrderRestController {
             throw new GuestException(ResultEnum.ORDER_JSON_PARSE_ERROR);
         }
         Date now = new Date();
-        Guest guest = (Guest) SecurityContextHolder.getContext()
-                .getAuthentication()
-                .getPrincipal();
+        Guest guest = UserUtils.getCurrentUser();
         List<Order> orders = newDTOS.stream().map(e -> {
-            return new Order(new OrderKey(now, guest.getId(), e.getProductId()), e.getPrice(), e.getNum(),
+            return new Order(new OrderKey(now, guest.getId(), e.getProductId(), OrderEnum.OK.getState()), e.getPrice(), e.getNum(),
                     e.getPrice().multiply(e.getNum()), e.getNote());
         }).collect(Collectors.toList());
         orderService.save(orders);
@@ -54,32 +53,35 @@ public class OrderRestController {
 
     @GetMapping("/findDates")
     public ResultVO<List<Date>> findDates(){
-        Guest guest = (Guest) SecurityContextHolder.getContext()
-                .getAuthentication()
-                .getPrincipal();
-        List<Date> dates = orderService.findDatesByGuestId(guest.getId());
+        Guest guest = UserUtils.getCurrentUser();
+        List<Date> dates = orderService.findDates();
         return ResultVOUtils.success(dates);
     }
 
-    @GetMapping("/findOneByDate")
-    public ResultVO<OneVO> findByDate(
+    // TODO 更新api
+    @GetMapping("/findStatesByDate")
+    public ResultVO<List<String>> findStatesByDate(
             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") Date date
     ){
-        Guest guest = (Guest) SecurityContextHolder.getContext()
-                .getAuthentication()
-                .getPrincipal();
-        OneVO oneVO = orderService.findByGuestIdAndDate(guest.getId(), date);
+        return ResultVOUtils.success(orderService.findStatesByDate(date));
+    }
+
+    // TODO 更新api
+    @GetMapping("/findOneByDateAndState")
+    public ResultVO<OneVO> findByDate(
+            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") Date date,
+            @RequestParam String state
+    ){
+        OneVO oneVO = orderService.findOneByDateAndState(date, state);
         return ResultVOUtils.success(oneVO);
     }
 
-    @PostMapping("/delete")
-    public ResultVO delete(
+    // TODO 更新api
+    @PostMapping("/back")
+    public ResultVO back(
             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") Date date
     ){
-        Guest guest = (Guest) SecurityContextHolder.getContext()
-                .getAuthentication()
-                .getPrincipal();
-        orderService.delete(guest.getId(), date);
+        orderService.back(date);
         return ResultVOUtils.success();
     }
 }

@@ -26,4 +26,6 @@ public class OrderKey implements Serializable {
     /*--- 采购单产品id ---*/
     private String productId;
 
+    /*--- 采购单状态, "0"正常, 其它退回 ---*/
+    private String state;
 }

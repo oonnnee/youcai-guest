@@ -51,4 +51,17 @@ public class UserRestController {
         guestService.updatePwd(curGuest.getId(), newPwd);
         return ResultVOUtils.success();
     }
+
+    @PostMapping("/register")
+    public ResultVO<Guest> register(
+            Guest guest,
+            @RequestParam String repwd
+    ){
+        if (!guest.getPwd().equals(repwd)){
+            throw new GuestException(ResultEnum.UPDATE_USER_PWD_INPUT_NOT_SAME);
+        }
+        Guest result = guestService.save(guest);
+        result.setPwd(null);
+        return ResultVOUtils.success(result);
+    }
 }

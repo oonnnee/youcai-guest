@@ -4,11 +4,13 @@ import com.youcai.guest.dataobject.Guest;
 import com.youcai.guest.repository.GuestRepository;
 import com.youcai.guest.service.GuestService;
 import com.youcai.guest.utils.EDSUtils;
+import com.youcai.guest.utils.KeyUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import sun.security.util.KeyUtil;
 
 import javax.transaction.Transactional;
 
@@ -47,5 +49,14 @@ public class GuestServiceImpl implements GuestService, UserDetailsService {
     @Override
     public Guest findOne(String id) {
         return guestRepository.findOne(id);
+    }
+
+    @Override
+    @Transactional
+    public Guest save(Guest guest) {
+        guest.setId(KeyUtils.generate());
+        guest.setPwd(EDSUtils.encryptBasedDes(guest.getPwd()));
+        Guest result = guestRepository.save(guest);
+        return result;
     }
 }

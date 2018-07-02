@@ -9,8 +9,8 @@ import java.util.List;
 
 public interface OrderService {
     void save(List<Order> orders);
-    List<Date> findDatesByGuestId(String guestId);
-    OneVO findByGuestIdAndDate(String guestId, Date date);
-    void delete(String guestId, Date date);
-    Export getExcelExport(String guestId, Date date);
+    List<Date> findDates();
+    List<String> findStatesByDate(Date date);
+    OneVO findOneByDateAndState(Date date, String state);
+    void back(Date date);
 }
