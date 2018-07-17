@@ -1,8 +1,6 @@
 package com.youcai.guest.service.impl;
 
 import com.youcai.guest.dataobject.*;
-import com.youcai.guest.dto.excel.order.Export;
-import com.youcai.guest.dto.excel.order.ProductExport;
 import com.youcai.guest.enums.OrderEnum;
 import com.youcai.guest.repository.OrderRepository;
 import com.youcai.guest.service.CategoryService;
@@ -11,14 +9,12 @@ import com.youcai.guest.service.OrderService;
 import com.youcai.guest.service.ProductService;
 import com.youcai.guest.utils.UUIDUtils;
 import com.youcai.guest.utils.UserUtils;
-import com.youcai.guest.vo.order.CategoryVO;
 import com.youcai.guest.vo.order.OneVO;
 import com.youcai.guest.vo.order.ProductVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -28,8 +24,6 @@ import java.util.Map;
 public class OrderServiceImpl implements OrderService {
     @Autowired
     private OrderRepository orderRepository;
-    @Autowired
-    private CategoryService categoryService;
     @Autowired
     private ProductService productService;
     @Autowired
@@ -50,37 +44,29 @@ public class OrderServiceImpl implements OrderService {
     public OneVO findOneByDateAndState(Date date, String state) {
         String guestId = UserUtils.getCurrentUser().getId();
         List<Order> orders = orderRepository.findByIdGuestIdAndIdOdateAndIdState(guestId, date, state);
-        List<Category> categories = categoryService.findAll();
         Map<String, Product> productMap = productService.findMap();
 
         OneVO oneVO = new OneVO();
+
+        List<ProductVO> products = new ArrayList<>();
+        for (Order order : orders){
+            Product p = productMap.get(order.getId().getProductId());
+            ProductVO product = new ProductVO();
+            product.setId(order.getId().getProductId());
+            product.setName(p.getName());
+            product.setUnit(p.getUnit());
+            product.setPrice(order.getPrice());
+            product.setNum(order.getNum());
+            product.setAmount(order.getPrice().multiply(order.getNum()));
+            product.setNote(order.getNote());
+            products.add(product);
+        }
+
         oneVO.setGuestId(guestId);
         oneVO.setDate(date);
         oneVO.setState(state);
-        List<CategoryVO> categoryVOS = new ArrayList<>();
-        for (Category category : categories){
-            CategoryVO categoryVO = new CategoryVO();
-            categoryVO.setCode(category.getCode());
-            categoryVO.setName(category.getName());
-            List<ProductVO> productVOS = new ArrayList<>();
-            for (Order order : orders){
-                Product product = productMap.get(order.getId().getProductId());
-                if (product.getPCode().equals(category.getCode())){
-                    ProductVO productVO = new ProductVO();
-                    productVO.setId(order.getId().getProductId());
-                    productVO.setName(product.getName());
-                    productVO.setUnit(product.getUnit());
-                    productVO.setPrice(order.getPrice());
-                    productVO.setNum(order.getNum());
-                    productVO.setAmount(order.getPrice().multiply(order.getNum()));
-                    productVO.setNote(order.getNote());
-                    productVOS.add(productVO);
-                }
-            }
-            categoryVO.setProducts(productVOS);
-            categoryVOS.add(categoryVO);
-        }
-        oneVO.setCategories(categoryVOS);
+        oneVO.setProducts(products);
+
         return oneVO;
     }
 

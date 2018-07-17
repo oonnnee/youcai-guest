@@ -14,5 +14,5 @@ public class OneVO {
     private String guestId;
     private Date date;
     private String state;
-    private List<CategoryVO> categories;
+    private List<ProductVO> products;
 }

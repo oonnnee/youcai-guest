@@ -13,5 +13,5 @@ import java.util.List;
 public class OneVO {
     private String guestId;
     private Date date;
-    private List<CategoryVO> categories;
+    private List<ProductVO> products;
 }

@@ -1,26 +1,19 @@
 package com.youcai.guest.enums;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
+@NoArgsConstructor
+@AllArgsConstructor
 public enum ResultEnum {
 
+    SUCCESS(0, "成功"),
     NO_LOGIN(1, "未登录"),
-    LOGIN_ERROR(2, "登录失败，手机号或密码错误"),
-    ORDER_JSON_PARSE_ERROR(3, "创建订单时，json解析错误"),
-    UPDATE_USER_INFO_ID_ERROR(4, "更新用户信息，id与当前登录用户id不一致"),
-    UPDATE_USER_PWD_INPUT_NOT_SAME(5, "两次密码输入不一致"),
-    UPDATE_USER_PWD_OLD_PWD_ERROR(5, "原密码错误")
+    ERROR(2, "错误")
     ;
 
     private Integer code;
-
-    private String msg;
-
-    ResultEnum() { }
-
-    ResultEnum(Integer code, String msg) {
-        this.code = code;
-        this.msg = msg;
-    }
+    private String note;
 }

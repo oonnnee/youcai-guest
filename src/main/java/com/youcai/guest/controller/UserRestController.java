@@ -27,7 +27,7 @@ public class UserRestController {
                 .getAuthentication()
                 .getPrincipal();
         if (!curGuest.getId().equals(guest.getId())){
-            throw new GuestException(ResultEnum.UPDATE_USER_INFO_ID_ERROR);
+            throw new GuestException("更新用户信息，id与当前登录用户id不一致");
         }
         return ResultVOUtils.success(guestService.update(guest));
     }
@@ -39,14 +39,14 @@ public class UserRestController {
             @RequestParam String reNewPwd
     ){
         if (!newPwd.equals(reNewPwd)){
-            return ResultVOUtils.error(ResultEnum.UPDATE_USER_PWD_INPUT_NOT_SAME);
+            return ResultVOUtils.error("两次密码输入不一致");
         }
         Guest curGuest = (Guest) SecurityContextHolder.getContext()
                 .getAuthentication()
                 .getPrincipal();
 
         if (!EDSUtils.encryptBasedDes(oldPwd).equals(guestService.findOne(curGuest.getId()).getPwd())){
-            return ResultVOUtils.error(ResultEnum.UPDATE_USER_PWD_OLD_PWD_ERROR);
+            return ResultVOUtils.error("原密码错误");
         }
         guestService.updatePwd(curGuest.getId(), newPwd);
         return ResultVOUtils.success();
@@ -58,7 +58,7 @@ public class UserRestController {
             @RequestParam String repwd
     ){
         if (!guest.getPwd().equals(repwd)){
-            throw new GuestException(ResultEnum.UPDATE_USER_PWD_INPUT_NOT_SAME);
+            throw new GuestException("两次密码输入不一致");
         }
         Guest result = guestService.save(guest);
         result.setPwd(null);

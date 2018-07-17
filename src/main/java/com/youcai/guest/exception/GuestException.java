@@ -8,13 +8,13 @@ public class GuestException extends RuntimeException {
 
     private Integer code;
 
-    public GuestException(ResultEnum resultEnum) {
-        super(resultEnum.getMsg());
-        this.code = resultEnum.getCode();
-    }
-
     public GuestException(Integer code, String msg){
         super(msg);
         this.code = code;
+    }
+
+    public GuestException(String msg){
+        super(msg);
+        this.code = ResultEnum.ERROR.getCode();
     }
 }

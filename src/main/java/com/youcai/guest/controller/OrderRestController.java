@@ -33,20 +33,20 @@ public class OrderRestController {
     public ResultVO save(
             @RequestParam String products
     ){
-        List<NewDTO> newDTOS = new ArrayList<>();
+        List<NewDTO> newDTOS;
         try {
             newDTOS = new Gson().fromJson(products,
                     new TypeToken<List<NewDTO>>() {
                     }.getType());
         } catch (Exception e) {
-            throw new GuestException(ResultEnum.ORDER_JSON_PARSE_ERROR);
+            throw new GuestException("创建采购单失败，产品json解析错误");
         }
         Date now = new Date();
         Guest guest = UserUtils.getCurrentUser();
-        List<Order> orders = newDTOS.stream().map(e -> {
-            return new Order(new OrderKey(now, guest.getId(), e.getProductId(), OrderEnum.OK.getState()), e.getPrice(), e.getNum(),
-                    e.getPrice().multiply(e.getNum()), e.getNote());
-        }).collect(Collectors.toList());
+        List<Order> orders = newDTOS.stream().map(e ->
+             new Order(new OrderKey(now, guest.getId(), e.getProductId(), OrderEnum.OK.getState()), e.getPrice(), e.getNum(),
+                    e.getPrice().multiply(e.getNum()), e.getNote())
+        ).collect(Collectors.toList());
         orderService.save(orders);
         return ResultVOUtils.success();
     }

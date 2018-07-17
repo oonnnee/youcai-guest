@@ -4,7 +4,6 @@ import com.youcai.guest.dataobject.*;
 import com.youcai.guest.repository.DeliverRepository;
 import com.youcai.guest.service.*;
 import com.youcai.guest.utils.UserUtils;
-import com.youcai.guest.vo.deliver.CategoryVO;
 import com.youcai.guest.vo.deliver.OneVO;
 import com.youcai.guest.vo.deliver.ProductVO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,8 +18,6 @@ import java.util.Map;
 public class DeliverServiceImpl implements DeliverService {
     @Autowired
     private DeliverRepository deliverRepository;
-    @Autowired
-    private CategoryService categoryService;
     @Autowired
     private ProductService productService;
     @Autowired
@@ -39,40 +36,70 @@ public class DeliverServiceImpl implements DeliverService {
     public OneVO findOneByDate(Date date) {
         String guestId = UserUtils.getCurrentUser().getId();
         List<DeliverList> delivers = deliverRepository.findByIdGuestIdAndIdDdate(guestId, date);
-        List<Category> categories = categoryService.findAll();
         Map<String, Product> productMap = productService.findMap();
         Driver driver = driverService.findOne(delivers.get(0).getId().getDriverId());
-        Guest guest = guestService.findOne(guestId);
 
         OneVO oneVO = new OneVO();
+
+        List<ProductVO> products = new ArrayList<>();
+        for (DeliverList deliver : delivers){
+            Product p = productMap.get(deliver.getId().getProductId());
+            ProductVO product = new ProductVO();
+            product.setId(deliver.getId().getProductId());
+            product.setName(p.getName());
+            product.setUnit(p.getUnit());
+            product.setPrice(deliver.getPrice());
+            product.setNum(deliver.getNum());
+            product.setAmount(deliver.getAmount());
+            product.setNote(deliver.getNote());
+            products.add(product);
+        }
+
         oneVO.setGuestId(guestId);
-        oneVO.setGuestName(guest.getName());
         oneVO.setDate(date);
         oneVO.setDriver(driver);
-        List<CategoryVO> categoryVOS = new ArrayList<>();
-        for (Category category : categories){
-            CategoryVO categoryVO = new CategoryVO();
-            categoryVO.setCode(category.getCode());
-            categoryVO.setName(category.getName());
-            List<ProductVO> productVOS = new ArrayList<>();
-            for (DeliverList deliver : delivers){
-                Product product = productMap.get(deliver.getId().getProductId());
-                if (product.getPCode().equals(category.getCode())){
-                    ProductVO productVO = new ProductVO();
-                    productVO.setId(deliver.getId().getProductId());
-                    productVO.setName(product.getName());
-                    productVO.setUnit(product.getUnit());
-                    productVO.setPrice(deliver.getPrice());
-                    productVO.setNum(deliver.getNum());
-                    productVO.setAmount(deliver.getPrice().multiply(deliver.getNum()));
-                    productVO.setNote(deliver.getNote());
-                    productVOS.add(productVO);
-                }
-            }
-            categoryVO.setProducts(productVOS);
-            categoryVOS.add(categoryVO);
-        }
-        oneVO.setCategories(categoryVOS);
+        oneVO.setProducts(products);
+
         return oneVO;
     }
+
+//    @Override
+//    public OneVO findOneByDate(Date date) {
+//        String guestId = UserUtils.getCurrentUser().getId();
+//        List<DeliverList> delivers = deliverRepository.findByIdGuestIdAndIdDdate(guestId, date);
+//        Map<String, Product> productMap = productService.findMap();
+//        Driver driver = driverService.findOne(delivers.get(0).getId().getDriverId());
+//        Guest guest = guestService.findOne(guestId);
+//
+//        OneVO oneVO = new OneVO();
+//        oneVO.setGuestId(guestId);
+//        oneVO.setGuestName(guest.getName());
+//        oneVO.setDate(date);
+//        oneVO.setDriver(driver);
+//        List<CategoryVO> categoryVOS = new ArrayList<>();
+//        for (Category category : categories){
+//            CategoryVO categoryVO = new CategoryVO();
+//            categoryVO.setCode(category.getCode());
+//            categoryVO.setName(category.getName());
+//            List<ProductVO> productVOS = new ArrayList<>();
+//            for (DeliverList deliver : delivers){
+//                Product product = productMap.get(deliver.getId().getProductId());
+//                if (product.getPCode().equals(category.getCode())){
+//                    ProductVO productVO = new ProductVO();
+//                    productVO.setId(deliver.getId().getProductId());
+//                    productVO.setName(product.getName());
+//                    productVO.setUnit(product.getUnit());
+//                    productVO.setPrice(deliver.getPrice());
+//                    productVO.setNum(deliver.getNum());
+//                    productVO.setAmount(deliver.getPrice().multiply(deliver.getNum()));
+//                    productVO.setNote(deliver.getNote());
+//                    productVOS.add(productVO);
+//                }
+//            }
+//            categoryVO.setProducts(productVOS);
+//            categoryVOS.add(categoryVO);
+//        }
+//        oneVO.setCategories(categoryVOS);
+//        return oneVO;
+//    }
 }
