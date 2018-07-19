@@ -9,6 +9,6 @@ public class UUIDUtils {
     }
 
     public static void main(String[] args){
-        System.out.println(randomUUID());
+        System.out.println(randomUUID().substring(0, 13));
     }
 }

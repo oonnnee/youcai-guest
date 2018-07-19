@@ -8,4 +8,5 @@ import java.util.List;
 public interface DeliverService {
     List<Date> findDates();
     OneVO findOneByDate(Date date);
+    void updateState(Date date, String oldState, String newState);
 }

@@ -1,6 +1,7 @@
 package com.youcai.guest.dataobject;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.youcai.guest.utils.EDSUtils;
 import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
@@ -17,6 +18,7 @@ public class Guest implements UserDetails {
     @Id
     private String id;
 
+    @JsonIgnore
     /*--- 客户密码 ---*/
     private String pwd;
 

@@ -9,6 +9,7 @@ import com.youcai.guest.vo.deliver.ProductVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -58,12 +59,20 @@ public class DeliverServiceImpl implements DeliverService {
         oneVO.setGuestId(guestId);
         oneVO.setDate(date);
         oneVO.setDriver(driver);
+        oneVO.setState(delivers.get(0).getId().getState());
         oneVO.setProducts(products);
 
         return oneVO;
     }
 
-//    @Override
+    @Override
+    @Transactional
+    public void updateState(Date date, String oldState, String newState) {
+        Guest currentUser = UserUtils.getCurrentUser();
+        deliverRepository.updateState(currentUser.getId(), date, oldState, newState);
+    }
+
+    //    @Override
 //    public OneVO findOneByDate(Date date) {
 //        String guestId = UserUtils.getCurrentUser().getId();
 //        List<DeliverList> delivers = deliverRepository.findByIdGuestIdAndIdDdate(guestId, date);

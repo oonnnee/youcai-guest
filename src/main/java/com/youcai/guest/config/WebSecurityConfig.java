@@ -56,7 +56,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                         httpServletResponse.setContentType("application/json;charset=utf-8");
 
                         Guest guest = (Guest) authentication.getPrincipal();
-                        guest.setPwd(null);
                         ResultVO success = ResultVOUtils.success(guest);
                         httpServletResponse.getWriter().write(new Gson().toJson(success));
                     }

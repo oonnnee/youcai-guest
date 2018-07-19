@@ -15,5 +15,6 @@ public class OneVO {
     private String guestId;
     private Date date;
     private Driver driver;
+    private String state;
     private List<ProductVO> products;
 }

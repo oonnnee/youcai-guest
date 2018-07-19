@@ -34,7 +34,6 @@ public class GuestServiceImpl implements GuestService, UserDetailsService {
     public Guest update(Guest guest) {
         guest.setPwd(guestRepository.findOne(guest.getId()).getPwd());
         Guest result = guestRepository.save(guest);
-        result.setPwd(null);
         return result;
     }
 

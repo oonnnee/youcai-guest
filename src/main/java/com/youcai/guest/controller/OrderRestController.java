@@ -10,6 +10,7 @@ import com.youcai.guest.enums.OrderEnum;
 import com.youcai.guest.enums.ResultEnum;
 import com.youcai.guest.exception.GuestException;
 import com.youcai.guest.service.OrderService;
+import com.youcai.guest.utils.OrderUtils;
 import com.youcai.guest.utils.ResultVOUtils;
 import com.youcai.guest.utils.UserUtils;
 import com.youcai.guest.vo.ResultVO;
@@ -44,7 +45,7 @@ public class OrderRestController {
         Date now = new Date();
         Guest guest = UserUtils.getCurrentUser();
         List<Order> orders = newDTOS.stream().map(e ->
-             new Order(new OrderKey(now, guest.getId(), e.getProductId(), OrderEnum.OK.getState()), e.getPrice(), e.getNum(),
+             new Order(new OrderKey(now, guest.getId(), e.getProductId(), OrderUtils.getStateNew()), e.getPrice(), e.getNum(),
                     e.getPrice().multiply(e.getNum()), e.getNote())
         ).collect(Collectors.toList());
         orderService.save(orders);
@@ -53,7 +54,6 @@ public class OrderRestController {
 
     @GetMapping("/findDates")
     public ResultVO<List<Date>> findDates(){
-        Guest guest = UserUtils.getCurrentUser();
         List<Date> dates = orderService.findDates();
         return ResultVOUtils.success(dates);
     }
@@ -82,6 +82,6 @@ public class OrderRestController {
             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") Date date
     ){
         orderService.back(date);
-        return ResultVOUtils.success();
+        return ResultVOUtils.success("申请退回成功，请等待后台人员处理");
     }
 }

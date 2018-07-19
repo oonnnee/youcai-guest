@@ -7,6 +7,7 @@ import com.youcai.guest.service.CategoryService;
 import com.youcai.guest.service.GuestService;
 import com.youcai.guest.service.OrderService;
 import com.youcai.guest.service.ProductService;
+import com.youcai.guest.utils.OrderUtils;
 import com.youcai.guest.utils.UUIDUtils;
 import com.youcai.guest.utils.UserUtils;
 import com.youcai.guest.vo.order.OneVO;
@@ -74,8 +75,8 @@ public class OrderServiceImpl implements OrderService {
     @Transactional
     public void back(Date date) {
         String guestId = UserUtils.getCurrentUser().getId();
-        String state = UUIDUtils.randomUUID();
-        orderRepository.back(guestId, date, state, OrderEnum.OK.getState());
+        String state = OrderUtils.getStateBacking();
+        orderRepository.back(guestId, date, state, OrderEnum.NEW.getState());
     }
 
     @Override

@@ -61,7 +61,6 @@ public class UserRestController {
             throw new GuestException("两次密码输入不一致");
         }
         Guest result = guestService.save(guest);
-        result.setPwd(null);
         return ResultVOUtils.success(result);
     }
 }
