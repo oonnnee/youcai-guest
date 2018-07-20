@@ -15,6 +15,7 @@ public interface DeliverRepository extends JpaRepository<DeliverList, DeliverLis
 
     List<DeliverList> findByIdGuestIdAndIdDdateAndIdDriverId(String guestId, Date date, String driverId);
     List<DeliverList> findByIdGuestIdAndIdDdate(String guestId, Date date);
+
     @Modifying
     @Query(value = "update d_list set state=?4 where guest_id=?1 and ddate=?2 and state=?3", nativeQuery = true)
     void updateState(String guestId, Date date, String oldState, String newState);
