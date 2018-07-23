@@ -10,6 +10,7 @@ import com.youcai.guest.enums.OrderEnum;
 import com.youcai.guest.enums.ResultEnum;
 import com.youcai.guest.exception.GuestException;
 import com.youcai.guest.service.OrderService;
+import com.youcai.guest.utils.GuestUtils;
 import com.youcai.guest.utils.OrderUtils;
 import com.youcai.guest.utils.ResultVOUtils;
 import com.youcai.guest.utils.UserUtils;
@@ -17,6 +18,7 @@ import com.youcai.guest.vo.ResultVO;
 import com.youcai.guest.vo.order.OneVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -34,49 +36,33 @@ public class OrderRestController {
     public ResultVO save(
             @RequestParam String products
     ){
-        List<NewDTO> newDTOS;
-        try {
-            newDTOS = new Gson().fromJson(products,
-                    new TypeToken<List<NewDTO>>() {
-                    }.getType());
-        } catch (Exception e) {
-            throw new GuestException("创建采购单失败，产品json解析错误");
-        }
-        Date now = new Date();
-        Guest guest = UserUtils.getCurrentUser();
-        List<Order> orders = newDTOS.stream().map(e ->
-             new Order(new OrderKey(now, guest.getId(), e.getProductId(), OrderUtils.getStateNew()), e.getPrice(), e.getNum(),
-                    e.getPrice().multiply(e.getNum()), e.getNote())
-        ).collect(Collectors.toList());
-        orderService.save(orders);
-        return ResultVOUtils.success();
+        orderService.save(products);
+        return ResultVOUtils.success("创建采购单成功");
     }
 
     @GetMapping("/findDates")
     public ResultVO<List<Date>> findDates(){
         List<Date> dates = orderService.findDates();
-        return ResultVOUtils.success(dates);
+        return ResultVOUtils.success(dates, "未查询到任何日期，暂无采购单");
     }
 
-    // TODO 更新api
     @GetMapping("/findStatesByDate")
     public ResultVO<List<String>> findStatesByDate(
             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") Date date
     ){
-        return ResultVOUtils.success(orderService.findStatesByDate(date));
+        List<String> states = orderService.findStatesByDate(date);
+        return ResultVOUtils.success(states, "此日期暂无采购单");
     }
 
-    // TODO 更新api
     @GetMapping("/findOneByDateAndState")
     public ResultVO<OneVO> findByDate(
             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") Date date,
             @RequestParam String state
     ){
         OneVO oneVO = orderService.findOneByDateAndState(date, state);
-        return ResultVOUtils.success(oneVO);
+        return ResultVOUtils.success(oneVO, "未查询到采购单");
     }
 
-    // TODO 更新api
     @PostMapping("/back")
     public ResultVO back(
             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") Date date

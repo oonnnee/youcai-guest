@@ -34,20 +34,23 @@ public class ProductRestController {
     public ResultVO<OneVO> findOne(
             @RequestParam String id
     ){
-        /*------------ 1.查询 -------------*/
         Product product = productService.findOne(id);
+        if (product == null){
+            return ResultVOUtils.error("此产品不存在");
+        }
+
         Map<String, String> categoryMap = categoryService.findAllInMap();
 
-        /*------------ 2.数据拼装 -------------*/
         OneVO OneVO = new OneVO();
         BeanUtils.copyProperties(product, OneVO);
+
         OneVO.setPCodeName(categoryMap.get(OneVO.getPCode()));
 
         return ResultVOUtils.success(OneVO);
     }
 
     @GetMapping("/findPage")
-    public ResultVO<Page<OneVO>> list(
+    public ResultVO<Page<OneVO>> findPage(
             @RequestParam(required = false, defaultValue = "0") Integer page,
             @RequestParam(required = false, defaultValue = "10") Integer size
     ){
@@ -64,7 +67,9 @@ public class ProductRestController {
         List<OneVO> OneVOS = productPage.getContent().stream().map(e -> {
             OneVO OneVO = new OneVO();
             BeanUtils.copyProperties(e, OneVO);
+
             OneVO.setPCodeName(categoryMap.get(OneVO.getPCode()));
+
             return OneVO;
         }).collect(Collectors.toList());
         Page<OneVO> OneVOPage = new PageImpl<OneVO>(OneVOS, pageable, productPage.getTotalElements());

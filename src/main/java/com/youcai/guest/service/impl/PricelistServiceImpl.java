@@ -1,6 +1,7 @@
 package com.youcai.guest.service.impl;
 
 import com.youcai.guest.dataobject.Category;
+import com.youcai.guest.dataobject.Guest;
 import com.youcai.guest.dataobject.Pricelist;
 import com.youcai.guest.dataobject.Product;
 import com.youcai.guest.repository.PricelistRepository;
@@ -10,7 +11,9 @@ import com.youcai.guest.service.ProductService;
 import com.youcai.guest.vo.pricelist.OneVO;
 import com.youcai.guest.vo.pricelist.ProductVO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -30,9 +33,12 @@ public class PricelistServiceImpl implements PricelistService {
         return dates;
     }
     @Override
-    public OneVO findLatest(String guestId) {
+    public OneVO findLatest() {
+        String guestId = ((Guest) SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getPrincipal()).getId();
         List<Date> pdates = this.findPdates(guestId);
-        if (pdates!=null && pdates.size()!=0){
+        if (CollectionUtils.isEmpty(pdates) == false){
             List<Pricelist> pricelists = pricelistRepository.findByIdGuestIdAndIdPdate(guestId, pdates.get(0));
             Map<String, Product> productMap = productService.findMap();
 

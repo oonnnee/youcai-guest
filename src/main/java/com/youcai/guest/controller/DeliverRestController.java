@@ -21,20 +21,18 @@ public class DeliverRestController {
     @GetMapping("/findDates")
     public ResultVO<List<Date>> findDates(){
         List<Date> dates = deliverService.findDates();
-        return ResultVOUtils.success(dates);
+        return ResultVOUtils.success(dates, "暂无送货单");
     }
 
 
-    // TODO 更新api
     @GetMapping("/findOneByDate")
     public ResultVO<OneVO> findByDate(
             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") Date date
     ){
         OneVO oneVO = deliverService.findOneByDate(date);
-        return ResultVOUtils.success(oneVO);
+        return ResultVOUtils.success(oneVO, "此日期下暂无送货单");
     }
 
-    // TODO 更新api
     @PostMapping("/receive")
     public ResultVO receive(
             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") Date date

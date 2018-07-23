@@ -8,5 +8,5 @@ import java.util.List;
 
 public interface PricelistService {
     List<Date> findPdates(String guestId);
-    OneVO findLatest(String guestId);
+    OneVO findLatest();
 }

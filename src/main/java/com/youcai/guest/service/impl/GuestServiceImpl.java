@@ -5,7 +5,9 @@ import com.youcai.guest.exception.GuestException;
 import com.youcai.guest.repository.GuestRepository;
 import com.youcai.guest.service.GuestService;
 import com.youcai.guest.utils.EDSUtils;
+import com.youcai.guest.utils.GuestUtils;
 import com.youcai.guest.utils.KeyUtils;
+import com.youcai.guest.utils.UserUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -21,9 +23,10 @@ import javax.transaction.Transactional;
 public class GuestServiceImpl implements GuestService, UserDetailsService {
 
     private void checkPhone(String phone){
-        if (this.isPhoneRepeat(phone)){
-            throw new GuestException("该手机号已被注册");
-        }
+        GuestUtils.GuestException(this.isPhoneRepeat(phone), "该手机号已被注册");
+    }
+    private void checkPhone(String phone, String id){
+        GuestUtils.GuestException(this.isPhoneRepeat(phone, id), "该手机号已被注册");
     }
 
     @Autowired
@@ -41,12 +44,11 @@ public class GuestServiceImpl implements GuestService, UserDetailsService {
     @Override
     @Transactional
     public Guest update(Guest guest) {
-        this.checkPhone(guest.getPhone());
-
-        Guest curGuest = (Guest) SecurityContextHolder.getContext()
-                .getAuthentication()
-                .getPrincipal();
+        Guest curGuest = UserUtils.getCurrentUser();
         guest.setId(curGuest.getId());
+
+        this.checkPhone(guest.getPhone(), guest.getId());
+
         guest.setPwd(guestRepository.findOne(guest.getId()).getPwd());
 
         Guest result = guestRepository.save(guest);
@@ -83,15 +85,18 @@ public class GuestServiceImpl implements GuestService, UserDetailsService {
 
     @Override
     public Guest findCurrent() {
-        Guest guest = (Guest) SecurityContextHolder.getContext()
-                .getAuthentication()
-                .getPrincipal();
+        Guest guest = UserUtils.getCurrentUser();
         return this.findOne(guest.getId());
     }
 
     @Override
     public boolean isPhoneRepeat(String phone) {
-        return guestRepository.findByPhone(phone)==null ? false:true;
+        return guestRepository.findByPhone(phone)!=null;
     }
-
+    @Override
+    public boolean isPhoneRepeat(String phone, String id) {
+        Guest guest = guestRepository.findByPhone(phone);
+        return guest == null ?
+                false : !guest.getId().equals(id);
+    }
 }

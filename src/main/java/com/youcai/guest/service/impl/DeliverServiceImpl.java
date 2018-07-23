@@ -8,6 +8,7 @@ import com.youcai.guest.vo.deliver.OneVO;
 import com.youcai.guest.vo.deliver.ProductVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import javax.transaction.Transactional;
 import java.util.ArrayList;
@@ -37,6 +38,9 @@ public class DeliverServiceImpl implements DeliverService {
     public OneVO findOneByDate(Date date) {
         String guestId = UserUtils.getCurrentUser().getId();
         List<DeliverList> delivers = deliverRepository.findByIdGuestIdAndIdDdate(guestId, date);
+        if (CollectionUtils.isEmpty(delivers)){
+            return null;
+        }
         Map<String, Product> productMap = productService.findMap();
         Driver driver = driverService.findOne(delivers.get(0).getId().getDriverId());
 

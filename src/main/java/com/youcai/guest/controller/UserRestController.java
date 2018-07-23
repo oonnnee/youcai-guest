@@ -41,7 +41,7 @@ public class UserRestController {
 
     @PostMapping("updatePwd")
     public ResultVO<Guest> updatePwd(
-            @RequestParam UpdatePwdForm updatePwdForm
+            @Valid UpdatePwdForm updatePwdForm
     ){
         if (!updatePwdForm.getNewPwd().equals(updatePwdForm.getReNewPwd())){
             return ResultVOUtils.error("两次密码输入不一致");

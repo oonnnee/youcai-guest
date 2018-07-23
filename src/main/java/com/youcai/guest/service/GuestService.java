@@ -9,4 +9,5 @@ public interface GuestService {
     Guest save(Guest guest);
     Guest findCurrent();
     boolean isPhoneRepeat(String phone);
+    boolean isPhoneRepeat(String phone, String guestId);
 }
