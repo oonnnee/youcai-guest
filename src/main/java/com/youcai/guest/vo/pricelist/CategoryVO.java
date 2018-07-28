@@ -1,21 +1,22 @@
 package com.youcai.guest.vo.pricelist;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Date;
 import java.util.List;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class OneVO {
+public class CategoryVO {
 
-    private String guestId;
+    private String code;
 
-    private Date date;
+    private String name;
 
-    private List<ProductVO> products;
+    @JsonProperty("products")
+    private List<ProductVO> productVOS;
 
 }

@@ -1,10 +1,14 @@
 package com.youcai.guest.service.impl;
 
 import com.youcai.guest.dataobject.*;
+import com.youcai.guest.dto.deliver.AllDTO;
 import com.youcai.guest.repository.DeliverRepository;
 import com.youcai.guest.service.*;
+import com.youcai.guest.transform.DeliverTransform;
 import com.youcai.guest.utils.UserUtils;
+import com.youcai.guest.vo.deliver.CategoryVO;
 import com.youcai.guest.vo.deliver.OneVO;
+import com.youcai.guest.vo.deliver.OneWithCategoryVO;
 import com.youcai.guest.vo.deliver.ProductVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class DeliverServiceImpl implements DeliverService {
@@ -26,6 +31,8 @@ public class DeliverServiceImpl implements DeliverService {
     private GuestService guestService;
     @Autowired
     private DriverService driverService;
+    @Autowired
+    private CategoryService categoryService;
 
     @Override
     public List<Date> findDates() {
@@ -37,36 +44,88 @@ public class DeliverServiceImpl implements DeliverService {
     @Override
     public OneVO findOneByDate(Date date) {
         String guestId = UserUtils.getCurrentUser().getId();
-        List<DeliverList> delivers = deliverRepository.findByIdGuestIdAndIdDdate(guestId, date);
-        if (CollectionUtils.isEmpty(delivers)){
+
+        List<Object[]> objectss = deliverRepository.findAllWith(guestId, date);
+        if (CollectionUtils.isEmpty(objectss)) {
             return null;
         }
-        Map<String, Product> productMap = productService.findMap();
-        Driver driver = driverService.findOne(delivers.get(0).getId().getDriverId());
+        List<AllDTO> allDTOS = DeliverTransform.objectssToAllDTOS(objectss);
+
+        Driver driver = driverService.findOne(allDTOS.get(0).getDriverId());
 
         OneVO oneVO = new OneVO();
 
-        List<ProductVO> products = new ArrayList<>();
-        for (DeliverList deliver : delivers){
-            Product p = productMap.get(deliver.getId().getProductId());
-            ProductVO product = new ProductVO();
-            product.setId(deliver.getId().getProductId());
-            product.setName(p.getName());
-            product.setUnit(p.getUnit());
-            product.setPrice(deliver.getPrice());
-            product.setNum(deliver.getNum());
-            product.setAmount(deliver.getAmount());
-            product.setNote(deliver.getNote());
-            products.add(product);
-        }
+        List<ProductVO> products = allDTOS.stream().map( e ->
+                new ProductVO(
+                        e.getProductId(), e.getProductName(), e.getProductCategory(), e.getProductUnit(),
+                        e.getProductPrice(), e.getProductNum(), e.getProductAmount(), e.getProductImgfile(),
+                        e.getNote(), null
+                )
+        ).collect(Collectors.toList());
 
         oneVO.setGuestId(guestId);
         oneVO.setDate(date);
         oneVO.setDriver(driver);
-        oneVO.setState(delivers.get(0).getId().getState());
+        oneVO.setState(allDTOS.get(0).getState());
         oneVO.setProducts(products);
 
         return oneVO;
+    }
+
+    @Override
+    public OneWithCategoryVO findOneWithCategoryByDate(Date date) {
+        String guestId = UserUtils.getCurrentUser().getId();
+
+        List<DeliverList> delivers = deliverRepository.findByIdGuestIdAndIdDdate(guestId, date);
+        if (CollectionUtils.isEmpty(delivers)) {
+            return null;
+        }
+
+        Map<String, Product> productMap = productService.findMap();
+        Driver driver = driverService.findOne(delivers.get(0).getId().getDriverId());
+        List<Category> categories = categoryService.findAll();
+
+        OneWithCategoryVO oneWithCategoryVO = new OneWithCategoryVO();
+
+        List categoryVOS = new ArrayList<CategoryVO>();
+        for (Category category : categories){
+            CategoryVO categoryVO = new CategoryVO();
+
+            List productVOS = new ArrayList<ProductVO>();
+            for (DeliverList deliver : delivers){
+
+                Product product = productMap.get(deliver.getId().getProductId());
+                if (product.getPCode().equals(category.getCode())){
+                    ProductVO productVO = new ProductVO();
+
+                    productVO.setId(product.getId());
+                    productVO.setName(product.getName());
+                    productVO.setUnit(product.getUnit());
+                    productVO.setPcode(product.getPCode());
+                    productVO.setImgfile(product.getImgfile());
+                    productVO.setNote(deliver.getNote());
+                    productVO.setPrice(deliver.getPrice());
+                    productVO.setNum(deliver.getNum());
+                    productVO.setAmount(deliver.getAmount());
+
+                    productVOS.add(productVO);
+                }
+            }
+
+            categoryVO.setCode(category.getCode());
+            categoryVO.setName(category.getName());
+            categoryVO.setProductVOS(productVOS);
+
+            categoryVOS.add(categoryVO);
+        }
+        
+        oneWithCategoryVO.setGuestId(guestId);
+        oneWithCategoryVO.setDate(date);
+        oneWithCategoryVO.setDriver(driver);
+        oneWithCategoryVO.setState(delivers.get(0).getId().getState());
+        oneWithCategoryVO.setCategoryVOS(categoryVOS);
+        
+        return oneWithCategoryVO;
     }
 
     @Override
@@ -76,43 +135,42 @@ public class DeliverServiceImpl implements DeliverService {
         deliverRepository.updateState(currentUser.getId(), date, oldState, newState);
     }
 
-    //    @Override
+}
+
+//    @Override
 //    public OneVO findOneByDate(Date date) {
 //        String guestId = UserUtils.getCurrentUser().getId();
+//
 //        List<DeliverList> delivers = deliverRepository.findByIdGuestIdAndIdDdate(guestId, date);
+//        if (CollectionUtils.isEmpty(delivers)) {
+//            return null;
+//        }
+//
 //        Map<String, Product> productMap = productService.findMap();
 //        Driver driver = driverService.findOne(delivers.get(0).getId().getDriverId());
-//        Guest guest = guestService.findOne(guestId);
 //
 //        OneVO oneVO = new OneVO();
+//
+//        List<ProductVO> products = new ArrayList<>();
+//        for (DeliverList deliver : delivers) {
+//            Product p = productMap.get(deliver.getId().getProductId());
+//            ProductVO product = new ProductVO();
+//            product.setId(deliver.getId().getProductId());
+//            product.setName(p.getName());
+//            product.setUnit(p.getUnit());
+//            product.setPcode(p.getPCode());
+//            product.setPrice(deliver.getPrice());
+//            product.setNum(deliver.getNum());
+//            product.setAmount(deliver.getAmount());
+//            product.setNote(deliver.getNote());
+//            products.add(product);
+//        }
+//
 //        oneVO.setGuestId(guestId);
-//        oneVO.setGuestName(guest.getName());
 //        oneVO.setDate(date);
 //        oneVO.setDriver(driver);
-//        List<CategoryVO> categoryVOS = new ArrayList<>();
-//        for (Category category : categories){
-//            CategoryVO categoryVO = new CategoryVO();
-//            categoryVO.setCode(category.getCode());
-//            categoryVO.setName(category.getName());
-//            List<ProductVO> productVOS = new ArrayList<>();
-//            for (DeliverList deliver : delivers){
-//                Product product = productMap.get(deliver.getId().getProductId());
-//                if (product.getPCode().equals(category.getCode())){
-//                    ProductVO productVO = new ProductVO();
-//                    productVO.setId(deliver.getId().getProductId());
-//                    productVO.setName(product.getName());
-//                    productVO.setUnit(product.getUnit());
-//                    productVO.setPrice(deliver.getPrice());
-//                    productVO.setNum(deliver.getNum());
-//                    productVO.setAmount(deliver.getPrice().multiply(deliver.getNum()));
-//                    productVO.setNote(deliver.getNote());
-//                    productVOS.add(productVO);
-//                }
-//            }
-//            categoryVO.setProducts(productVOS);
-//            categoryVOS.add(categoryVO);
-//        }
-//        oneVO.setCategories(categoryVOS);
+//        oneVO.setState(delivers.get(0).getId().getState());
+//        oneVO.setProducts(products);
+//
 //        return oneVO;
 //    }
-}

@@ -5,6 +5,7 @@ import com.youcai.guest.service.DeliverService;
 import com.youcai.guest.utils.ResultVOUtils;
 import com.youcai.guest.vo.ResultVO;
 import com.youcai.guest.vo.deliver.OneVO;
+import com.youcai.guest.vo.deliver.OneWithCategoryVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
@@ -31,6 +32,13 @@ public class DeliverRestController {
     ){
         OneVO oneVO = deliverService.findOneByDate(date);
         return ResultVOUtils.success(oneVO, "此日期下暂无送货单");
+    }
+    @GetMapping("/findOneWithCategoryByDate")
+    public ResultVO<OneWithCategoryVO> findOneWithCategoryByDate(
+            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") Date date
+    ){
+        OneWithCategoryVO oneWithCategoryVO = deliverService.findOneWithCategoryByDate(date);
+        return ResultVOUtils.success(oneWithCategoryVO, "此日期下暂无送货单");
     }
 
     @PostMapping("/receive")

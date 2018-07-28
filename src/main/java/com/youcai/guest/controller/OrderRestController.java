@@ -16,6 +16,9 @@ import com.youcai.guest.utils.ResultVOUtils;
 import com.youcai.guest.utils.UserUtils;
 import com.youcai.guest.vo.ResultVO;
 import com.youcai.guest.vo.order.OneVO;
+import com.youcai.guest.vo.order.OneWithCategoryVO;
+import com.youcai.guest.vo.pricelist.CategoryVO;
+import com.youcai.guest.vo.pricelist.ProductVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.util.CollectionUtils;
@@ -31,6 +34,20 @@ import java.util.stream.Collectors;
 public class OrderRestController {
     @Autowired
     private OrderService orderService;
+
+    @GetMapping("/findLatestPricelistWithNum")
+    public ResultVO findLatestPricelistWithNum(){
+        com.youcai.guest.vo.pricelist.OneVO oneVO = orderService.findLatestPricelistWithNum();
+
+        return ResultVOUtils.success(oneVO, "暂无报价单");
+    }
+
+    @GetMapping("/findLatestPricelistWithNumAndCategory")
+    public ResultVO findLatestPricelistWithNumAndCategory(){
+        com.youcai.guest.vo.pricelist.OneWithCategoryVO oneWithCategoryVO = orderService.findLatestPricelistWithNumAndCategory();
+
+        return ResultVOUtils.success(oneWithCategoryVO, "暂无报价单");
+    }
 
     @PostMapping("/new")
     public ResultVO save(
@@ -55,12 +72,21 @@ public class OrderRestController {
     }
 
     @GetMapping("/findOneByDateAndState")
-    public ResultVO<OneVO> findByDate(
+    public ResultVO<OneVO> findOneByDateAndState(
             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") Date date,
             @RequestParam String state
     ){
         OneVO oneVO = orderService.findOneByDateAndState(date, state);
         return ResultVOUtils.success(oneVO, "未查询到采购单");
+    }
+
+    @GetMapping("/findOneWithCategoryByDateAndState")
+    public ResultVO<OneVO> findOneWithCategoryByDateAndState(
+            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") Date date,
+            @RequestParam String state
+    ){
+        OneWithCategoryVO oneWithCategoryVO = orderService.findOneWithCategoryByDateAndState(date, state);
+        return ResultVOUtils.success(oneWithCategoryVO, "未查询到采购单");
     }
 
     @PostMapping("/back")
