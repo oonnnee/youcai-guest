@@ -4,6 +4,7 @@ import com.youcai.guest.enums.DeliverEnum;
 import com.youcai.guest.service.DeliverService;
 import com.youcai.guest.utils.ResultVOUtils;
 import com.youcai.guest.vo.ResultVO;
+import com.youcai.guest.vo.deliver.DateAndStateVO;
 import com.youcai.guest.vo.deliver.OneVO;
 import com.youcai.guest.vo.deliver.OneWithCategoryVO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,11 @@ public class DeliverRestController {
     public ResultVO<List<Date>> findDates(){
         List<Date> dates = deliverService.findDates();
         return ResultVOUtils.success(dates, "暂无送货单");
+    }
+    @GetMapping("/findDatesAndState")
+    public ResultVO<List<DateAndStateVO>> findDatesAndState(){
+        List<DateAndStateVO> dateAndStateVOS = deliverService.findDatesAndState();
+        return ResultVOUtils.success(dateAndStateVOS, "暂无送货单");
     }
 
 

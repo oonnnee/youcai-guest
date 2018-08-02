@@ -13,6 +13,9 @@ public interface DeliverRepository extends JpaRepository<DeliverList, DeliverLis
     @Query(value = "select distinct ddate from d_list where guest_id = ?1 order by ddate desc", nativeQuery = true)
     List<Date> findDistinctIdDdateByIdGuestId(String guestId);
 
+    @Query(value = "select distinct ddate,state from d_list where guest_id = ?1 order by ddate desc", nativeQuery = true)
+    List<Object[]> findDistinctDateAndStateByGuestId(String guestId);
+
     List<DeliverList> findByIdGuestIdAndIdDdateAndIdDriverId(String guestId, Date date, String driverId);
     List<DeliverList> findByIdGuestIdAndIdDdate(String guestId, Date date);
 

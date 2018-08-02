@@ -9,6 +9,11 @@ public class GuestUtils {
             throw new GuestException(msg);
         }
     }
+    public static void GuestException(boolean b, String msg){
+        if (b){
+            throw new GuestException(msg);
+        }
+    }
     public static void HintException(Object object, String msg){
         if (object == null){
             throw new HintException(msg);

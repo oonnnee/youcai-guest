@@ -6,10 +6,7 @@ import com.youcai.guest.repository.DeliverRepository;
 import com.youcai.guest.service.*;
 import com.youcai.guest.transform.DeliverTransform;
 import com.youcai.guest.utils.UserUtils;
-import com.youcai.guest.vo.deliver.CategoryVO;
-import com.youcai.guest.vo.deliver.OneVO;
-import com.youcai.guest.vo.deliver.OneWithCategoryVO;
-import com.youcai.guest.vo.deliver.ProductVO;
+import com.youcai.guest.vo.deliver.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -39,6 +36,13 @@ public class DeliverServiceImpl implements DeliverService {
         Guest currentUser = UserUtils.getCurrentUser();
         List<Date> dates = deliverRepository.findDistinctIdDdateByIdGuestId(currentUser.getId());
         return dates;
+    }
+    @Override
+    public List<DateAndStateVO> findDatesAndState() {
+        Guest currentUser = UserUtils.getCurrentUser();
+        List<Object[]> objectss = deliverRepository.findDistinctDateAndStateByGuestId(currentUser.getId());
+        List<DateAndStateVO> dateAndStateVOS = objectss.stream().map(e -> new DateAndStateVO((Date) e[0], (String) e[1])).collect(Collectors.toList());
+        return dateAndStateVOS;
     }
 
     @Override

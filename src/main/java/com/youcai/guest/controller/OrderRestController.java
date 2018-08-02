@@ -15,6 +15,7 @@ import com.youcai.guest.utils.OrderUtils;
 import com.youcai.guest.utils.ResultVOUtils;
 import com.youcai.guest.utils.UserUtils;
 import com.youcai.guest.vo.ResultVO;
+import com.youcai.guest.vo.order.DateAndStatesVO;
 import com.youcai.guest.vo.order.OneVO;
 import com.youcai.guest.vo.order.OneWithCategoryVO;
 import com.youcai.guest.vo.pricelist.CategoryVO;
@@ -24,9 +25,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
@@ -69,6 +68,31 @@ public class OrderRestController {
     ){
         List<String> states = orderService.findStatesByDate(date);
         return ResultVOUtils.success(states, "此日期暂无采购单");
+    }
+
+    @GetMapping("/findDatesAndStates")
+    public ResultVO<List<DateAndStatesVO>> findDatesAndStates(){
+        List<Date> dates = orderService.findDates();
+        GuestUtils.HintException(dates, "暂无采购单");
+
+        Integer count = 0;
+
+        List<DateAndStatesVO> dateAndStatesVOS = new ArrayList<>();
+        for (Date e : dates)
+        {
+            DateAndStatesVO dateAndStatesVO = new DateAndStatesVO();
+
+            List<String> states = orderService.findStatesByDate(e);
+
+            count += states.size();
+
+            dateAndStatesVO.setDate(e);
+            dateAndStatesVO.setStates(states);
+
+            dateAndStatesVOS.add(dateAndStatesVO);
+        }
+
+        return new ResultVO(0, count, "成功", dateAndStatesVOS);
     }
 
     @GetMapping("/findOneByDateAndState")

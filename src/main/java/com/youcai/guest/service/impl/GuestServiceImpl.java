@@ -14,6 +14,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import sun.applet.Main;
 import sun.security.util.KeyUtil;
 
@@ -49,7 +50,11 @@ public class GuestServiceImpl implements GuestService, UserDetailsService {
 
         this.checkPhone(guest.getPhone(), guest.getId());
 
-        guest.setPwd(guestRepository.findOne(guest.getId()).getPwd());
+        Guest oldGuest = guestRepository.findOne(guest.getId());
+        guest.setPwd(oldGuest.getPwd());
+        if (StringUtils.isEmpty(guest.getPhone())){
+            guest.setPhone(oldGuest.getPhone());
+        }
 
         Guest result = guestRepository.save(guest);
 
