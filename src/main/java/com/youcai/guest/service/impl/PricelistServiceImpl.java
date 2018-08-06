@@ -9,6 +9,7 @@ import com.youcai.guest.service.CategoryService;
 import com.youcai.guest.service.PricelistService;
 import com.youcai.guest.service.ProductService;
 import com.youcai.guest.transform.PricelistTransform;
+import com.youcai.guest.utils.GuestUtils;
 import com.youcai.guest.utils.UserUtils;
 import com.youcai.guest.vo.pricelist.CategoryVO;
 import com.youcai.guest.vo.pricelist.OneVO;
@@ -49,13 +50,16 @@ public class PricelistServiceImpl implements PricelistService {
 
             OneVO oneVO = new OneVO();
 
-            List<ProductVO> products = allDTOS.stream().map(e ->
-                    new ProductVO(
+            List<ProductVO> products = new ArrayList<>();
+            for (AllDTO e : allDTOS){
+                if (!GuestUtils.isZero(e.getProductGuestPrice())) {
+                    products.add(new ProductVO(
                             e.getProductId(), e.getProductName(), e.getProductCategory(), e.getProductUnit(),
                             e.getProductMarketPrice(), e.getProductGuestPrice(), e.getProductImgfile(), e.getNote(),
                             null, null
-                    )
-            ).collect(Collectors.toList());
+                    ));
+                }
+            }
 
             oneVO.setGuestId(guestId);
             oneVO.setDate(pdates.get(0));
@@ -85,8 +89,7 @@ public class PricelistServiceImpl implements PricelistService {
 
                 List productVOS = new ArrayList<ProductVO>();
                 for (Pricelist pricelist : pricelists){
-                    if (pricelist.getPrice().subtract(BigDecimal.ZERO)
-                            .compareTo(new BigDecimal(0.01)) < 0) {
+                    if (GuestUtils.isZero(pricelist.getPrice())) {
                         continue;
                     }
 
@@ -125,46 +128,3 @@ public class PricelistServiceImpl implements PricelistService {
 
     }
 }
-
-//    @Override
-//    public OneVO findLatest() {
-//        String guestId = UserUtils.getCurrentUser().getId();
-//
-//        List<Date> pdates = this.findPdates(guestId);
-//        if (CollectionUtils.isEmpty(pdates) == false){
-//            List<Pricelist> pricelists = pricelistRepository.findByIdGuestIdAndIdPdate(guestId, pdates.get(0));
-//            Map<String, Product> productMap = productService.findMap();
-//
-//            OneVO oneVO = new OneVO();
-//
-//            List<ProductVO> products = new ArrayList<>();
-//            for (Pricelist pricelist : pricelists) {
-//                if (pricelist.getPrice().subtract(BigDecimal.ZERO)
-//                        .compareTo(new BigDecimal(0.01)) < 0) {
-//                    continue;
-//                }
-//
-//                Product p = productMap.get(pricelist.getId().getProductId());
-//
-//                ProductVO product = new ProductVO();
-//
-//                product.setId(pricelist.getId().getProductId());
-//                product.setName(p.getName());
-//                product.setUnit(p.getUnit());
-//                product.setPcode(p.getPCode());
-//                product.setGuestPrice(pricelist.getPrice());
-//                product.setMarketPrice(p.getPrice());
-//                product.setNote(pricelist.getNote());
-//
-//                products.add(product);
-//            }
-//
-//            oneVO.setGuestId(guestId);
-//            oneVO.setDate(pdates.get(0));
-//            oneVO.setProducts(products);
-//
-//            return oneVO;
-//        }else{
-//            return null;
-//        }
-//    }

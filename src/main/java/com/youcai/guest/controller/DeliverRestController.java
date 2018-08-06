@@ -31,7 +31,6 @@ public class DeliverRestController {
         return ResultVOUtils.success(dateAndStateVOS, "暂无送货单");
     }
 
-
     @GetMapping("/findOneByDate")
     public ResultVO<OneVO> findByDate(
             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") Date date

@@ -28,4 +28,6 @@ public class DeliverListKey implements Serializable {
     private String productId;
 
     private String state;
+
+    private Date orderDate;
 }

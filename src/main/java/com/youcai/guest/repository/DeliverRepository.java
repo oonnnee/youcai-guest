@@ -10,21 +10,21 @@ import java.util.Date;
 import java.util.List;
 
 public interface DeliverRepository extends JpaRepository<DeliverList, DeliverListKey> {
-    @Query(value = "select distinct ddate from d_list where guest_id = ?1 order by ddate desc", nativeQuery = true)
+    @Query(value = "select distinct order_date from d_list where guest_id = ?1 order by order_date desc", nativeQuery = true)
     List<Date> findDistinctIdDdateByIdGuestId(String guestId);
 
-    @Query(value = "select distinct ddate,state from d_list where guest_id = ?1 order by ddate desc", nativeQuery = true)
+    @Query(value = "select distinct order_date,state from d_list where guest_id = ?1 order by order_date desc", nativeQuery = true)
     List<Object[]> findDistinctDateAndStateByGuestId(String guestId);
 
-    List<DeliverList> findByIdGuestIdAndIdDdateAndIdDriverId(String guestId, Date date, String driverId);
-    List<DeliverList> findByIdGuestIdAndIdDdate(String guestId, Date date);
+    List<DeliverList> findByIdGuestIdAndIdOrderDate(String guestId, Date date);
 
     @Modifying
-    @Query(value = "update d_list set state=?4 where guest_id=?1 and ddate=?2 and state=?3", nativeQuery = true)
+    @Query(value = "update d_list set state=?4 where guest_id=?1 and order_date=?2 and state=?3", nativeQuery = true)
     void updateState(String guestId, Date date, String oldState, String newState);
 
     @Query(value = "SELECT\n" +
-            "\td.ddate AS date,\n" +
+            "\td.ddate AS deliverDate,\n" +
+            "\td.order_date AS orderDate,\n" +
             "\td.state,\n" +
             "\tdriver.id AS driver_id,\n" +
             "\tdriver.NAME AS driver_name,\n" +
@@ -47,7 +47,7 @@ public interface DeliverRepository extends JpaRepository<DeliverList, DeliverLis
             "\tLEFT JOIN driver ON driver.id = d.d_id \n" +
             "WHERE\n" +
             "\td.guest_id = ?1 \n" +
-            "\tAND d.ddate = ?2 \n" +
+            "\tAND d.order_date = ?2 \n" +
             "ORDER BY\n" +
             "\tp.p_code", nativeQuery = true)
     List<Object[]> findAllWith(String guestId, Date date);

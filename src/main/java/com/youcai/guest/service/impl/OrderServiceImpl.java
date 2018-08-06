@@ -13,6 +13,7 @@ import com.youcai.guest.service.OrderService;
 import com.youcai.guest.service.PricelistService;
 import com.youcai.guest.service.ProductService;
 import com.youcai.guest.transform.OrderTransform;
+import com.youcai.guest.utils.GuestUtils;
 import com.youcai.guest.utils.OrderUtils;
 import com.youcai.guest.utils.UserUtils;
 import com.youcai.guest.vo.order.CategoryVO;
@@ -61,19 +62,36 @@ public class OrderServiceImpl implements OrderService {
                 productVO.setNote("");
             }
 
+            List<com.youcai.guest.vo.pricelist.ProductVO> productVOS2 = new ArrayList<>();
+
             if (!CollectionUtils.isEmpty(latestOrders)){
                 for (com.youcai.guest.vo.pricelist.ProductVO productVO : productVOS){
                     for (Order order : latestOrders){
                         if (order.getId().getProductId().equals(productVO.getId())){
-                            productVO.setNum(order.getNum());
+                            if (!GuestUtils.isZero(order.getNum())){
+                                productVO.setNum(order.getNum());
+                                productVO.setNote(order.getNote());
+                                productVOS2.add(productVO);
+                            }
                         }
                     }
                 }
+                for (com.youcai.guest.vo.pricelist.ProductVO productVO : productVOS){
+                    for (Order order : latestOrders){
+                        if (order.getId().getProductId().equals(productVO.getId())){
+                            if (GuestUtils.isZero(order.getNum())){
+                                productVOS2.add(productVO);
+                            }
+                        }
+                    }
+                }
+            }else {
+                productVOS2 = productVOS;
             }
 
             oneVO.setGuestId(currentGuestId);
             oneVO.setDate(oldOneVO.getDate());
-            oneVO.setProducts(productVOS);
+            oneVO.setProducts(productVOS2);
             return oneVO;
         }
     }
@@ -133,13 +151,32 @@ public class OrderServiceImpl implements OrderService {
             throw new GuestException("创建采购单失败，今天您已经进行采购了哦");
         }
 
-        Iterator<NewDTO> it = newDTOS.iterator();
-        while(it.hasNext()){
-            NewDTO newDTO = it.next();
-            if (newDTO.getNum().subtract(BigDecimal.ZERO)
-                    .compareTo(new BigDecimal(0.01)) < 0) {
-                it.remove();
+        // 防止用户修改价格数据
+        com.youcai.guest.vo.pricelist.OneVO pricelistOneVO = pricelistService.findLatest();
+        List<com.youcai.guest.vo.pricelist.ProductVO> pricelistProductVOS = pricelistOneVO.getProducts();
+        for (NewDTO newDTO: newDTOS){
+            for (com.youcai.guest.vo.pricelist.ProductVO pricelistProductVO : pricelistProductVOS){
+                if (newDTO.getProductId().equals(pricelistProductVO.getId())){
+                    GuestUtils.GuestException(
+                            GuestUtils.isZero(pricelistProductVO.getGuestPrice()), "创建采购单失败，产品参数错误");
+                    newDTO.setPrice(pricelistProductVO.getGuestPrice());
+                }
             }
+        }
+
+        // 移除为0的
+//        Iterator<NewDTO> it = newDTOS.iterator();
+//        while(it.hasNext()){
+//            NewDTO newDTO = it.next();
+//            if (newDTO.getNum().subtract(BigDecimal.ZERO)
+//                    .compareTo(new BigDecimal(0.01)) < 0) {
+//                it.remove();
+//            }
+//        }
+
+        // 校验数量是否为负
+        for (NewDTO newDTO : newDTOS){
+            GuestUtils.GuestException(GuestUtils.isNegative(newDTO.getNum()), "创建采购单失败, 产品数量不能小于0");
         }
 
         Guest guest = UserUtils.getCurrentUser();
@@ -169,17 +206,24 @@ public class OrderServiceImpl implements OrderService {
 
         OneVO oneVO = new OneVO();
 
-        List<ProductVO> products = allDTOS.stream().map( e ->
-                new ProductVO(
+        BigDecimal total = BigDecimal.ZERO;
+
+        List<ProductVO> products = new ArrayList<>();
+        for (AllDTO e : allDTOS){
+            if (!GuestUtils.isZero(e.getProductNum())){
+                products.add(new ProductVO(
                         e.getProductId(), e.getProductName(), e.getProductCategory(), e.getProductUnit(),
                         e.getProductPrice(), e.getProductNum(), e.getProductAmount(), e.getProductImgfile(),
                         e.getNote(), null
-                )
-        ).collect(Collectors.toList());
+                ));
+                total = total.add(e.getProductAmount());
+            }
+        }
 
         oneVO.setGuestId(guestId);
         oneVO.setDate(date);
         oneVO.setState(state);
+        oneVO.setTotal(total);
         oneVO.setProducts(products);
 
         return oneVO;
@@ -204,6 +248,9 @@ public class OrderServiceImpl implements OrderService {
 
             List productVOS = new ArrayList<ProductVO>();
             for (Order order : orders){
+                if (GuestUtils.isZero(order.getNum())){
+                    continue;
+                }
 
                 Product product = productMap.get(order.getId().getProductId());
                 if (product.getPCode().equals(category.getCode())){

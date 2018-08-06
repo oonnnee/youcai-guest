@@ -14,7 +14,7 @@ public class DeliverTransform {
         }
 
         return objectss.stream().map(
-                e -> new AllDTO(e[0], e[1], e[2], e[3], e[4], e[5], e[6], e[7], e[8], e[9], e[10], e[11], e[12], e[12], e[14])
+                e -> new AllDTO(e[0], e[1], e[2], e[3], e[4], e[5], e[6], e[7], e[8], e[9], e[10], e[11], e[12], e[13], e[14], e[15])
         ).collect(Collectors.toList());
     }
 }

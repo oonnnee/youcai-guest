@@ -15,7 +15,8 @@ import java.util.List;
 public class OneWithCategoryVO {
 
     private String guestId;
-    private Date date;
+    private Date deliverDate;
+    private Date orderDate;
     private Driver driver;
     private String state;
 

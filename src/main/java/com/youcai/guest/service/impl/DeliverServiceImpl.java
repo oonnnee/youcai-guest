@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import javax.transaction.Transactional;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -59,18 +60,24 @@ public class DeliverServiceImpl implements DeliverService {
 
         OneVO oneVO = new OneVO();
 
-        List<ProductVO> products = allDTOS.stream().map( e ->
-                new ProductVO(
-                        e.getProductId(), e.getProductName(), e.getProductCategory(), e.getProductUnit(),
-                        e.getProductPrice(), e.getProductNum(), e.getProductAmount(), e.getProductImgfile(),
-                        e.getNote(), null
-                )
-        ).collect(Collectors.toList());
+        BigDecimal total = BigDecimal.ZERO;
+
+        List<ProductVO> products = new ArrayList<>();
+        for (AllDTO e : allDTOS){
+            total = total.add(e.getProductAmount());
+            products.add(new ProductVO(
+                    e.getProductId(), e.getProductName(), e.getProductCategory(), e.getProductUnit(),
+                    e.getProductPrice(), e.getProductNum(), e.getProductAmount(), e.getProductImgfile(),
+                    e.getNote(), null
+            ));
+        }
 
         oneVO.setGuestId(guestId);
-        oneVO.setDate(date);
+        oneVO.setDeliverDate(allDTOS.get(0).getDeliverDate());
+        oneVO.setOrderDate(allDTOS.get(0).getOrderDate());
         oneVO.setDriver(driver);
         oneVO.setState(allDTOS.get(0).getState());
+        oneVO.setTotal(total);
         oneVO.setProducts(products);
 
         return oneVO;
@@ -80,7 +87,7 @@ public class DeliverServiceImpl implements DeliverService {
     public OneWithCategoryVO findOneWithCategoryByDate(Date date) {
         String guestId = UserUtils.getCurrentUser().getId();
 
-        List<DeliverList> delivers = deliverRepository.findByIdGuestIdAndIdDdate(guestId, date);
+        List<DeliverList> delivers = deliverRepository.findByIdGuestIdAndIdOrderDate(guestId, date);
         if (CollectionUtils.isEmpty(delivers)) {
             return null;
         }
@@ -124,7 +131,8 @@ public class DeliverServiceImpl implements DeliverService {
         }
         
         oneWithCategoryVO.setGuestId(guestId);
-        oneWithCategoryVO.setDate(date);
+        oneWithCategoryVO.setDeliverDate(delivers.get(0).getId().getDdate());
+        oneWithCategoryVO.setOrderDate(delivers.get(0).getId().getOrderDate());
         oneWithCategoryVO.setDriver(driver);
         oneWithCategoryVO.setState(delivers.get(0).getId().getState());
         oneWithCategoryVO.setCategoryVOS(categoryVOS);
